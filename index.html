@@ -980,10 +980,10 @@
 
     const SELECCIONABLES = [placaSuperior, placaInferior, iman, perilla, fuente];
 
-    /* De los seleccionables, estos son los que se pueden mover
-       con la pinza (la fuente solo se selecciona) */
+    /* De los seleccionables, estos son los que responden a la pinza.
+       Con la fuente seleccionada, la pinza mueve la perilla del voltaje. */
 
-    const MOVIBLES = new Set([placaSuperior, placaInferior, iman, perilla]);
+    const MOVIBLES = new Set([placaSuperior, placaInferior, iman, perilla, fuente]);
 
     const BOTONES = [botonFuente, botonPolSup, botonPolInf, botonIman, botonFisica];
 
@@ -1286,9 +1286,12 @@
 
       for (const el of SELECCIONABLES) {
 
+        /* Con la fuente agarrada, lo que se mueve es la perilla */
+
         el.classList.toggle(
           "agarrada",
-          el === objetoAgarrado
+          el === objetoAgarrado ||
+          (el === perilla && objetoAgarrado === fuente)
         );
 
         el.classList.toggle(
@@ -1768,9 +1771,10 @@
 
       ultimaMano = mano;
 
-      if (objetoAgarrado === perilla) {
+      if (objetoAgarrado === perilla || objetoAgarrado === fuente) {
 
-        /* Perilla de voltaje: se mueve en horizontal */
+        /* Perilla de voltaje: se mueve en horizontal.
+           (También con la fuente seleccionada: la pinza regula el voltaje.) */
 
         perillaPct = acotar(
           perillaPct + deltaX * GANANCIA_PERILLA,
@@ -2597,7 +2601,10 @@
 
       if (objetoAgarrado !== null) {
 
-        gestureElement.textContent = "GESTO: AGARRANDO 🤏";
+        gestureElement.textContent =
+          objetoAgarrado === fuente
+            ? "GESTO: AGARRANDO 🤏 — REGULANDO EL VOLTAJE"
+            : "GESTO: AGARRANDO 🤏";
 
       } else if (gestoP !== null) {
 
