@@ -1,31 +1,36 @@
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Laboratorio Imposible: explorá experimentos históricos de la ciencia mediante laboratorios virtuales interactivos."
-    />
-    <meta name="theme-color" content="#0b1018" />
-    <title>Laboratorio Imposible</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- MediaPipe: carga directa desde CDN, sin modificar package.json -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
+  <meta
+    name="description"
+    content="Laboratorio Imposible: explorá experimentos históricos de la ciencia mediante laboratorios virtuales interactivos."
+  />
 
+  <meta name="theme-color" content="#0b1018" />
+
+  <title>Laboratorio Imposible</title>
+
+  <!-- Estilos de la página -->
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- MediaPipe -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+    crossorigin="anonymous"
+  ></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+    crossorigin="anonymous"
+  ></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+    crossorigin="anonymous"
+  ></script>
+</head>
   <body>
     <div class="page-shell">
       <header class="site-header">
@@ -233,6 +238,6 @@
       <span></span>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
