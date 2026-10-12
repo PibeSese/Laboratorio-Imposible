@@ -8,22 +8,31 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <style>
-:root{--text:#f3f4ef}
+:root{--text:#f3f4ef;
+  --lat:clamp(200px,17vw,290px);                 /* ancho de las columnas laterales */
+  --arbolH:clamp(170px,27dvh,230px);              /* alto del árbol */
+  --labw:min(calc(99vw - 2*var(--lat) - 24px),calc((100dvh - var(--arbolH) - 28px)*2)) /* ancho del laboratorio */}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at 50% 0,#263744,#0d1319 70%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-#pagina{width:min(1400px,98vw);margin:10px auto 14px}
-#escenario{position:relative;isolation:isolate;container-type:inline-size;width:min(100%,calc((100dvh - 388px)*2));min-width:640px;margin:0 auto;user-select:none;-webkit-user-select:none}
+#pagina{margin:6px auto 8px;width:max-content;max-width:100vw}
+#escenario{position:relative;isolation:isolate;display:grid;grid-template-columns:var(--lat) var(--labw) var(--lat);grid-template-rows:calc(var(--labw)/2) var(--arbolH);gap:10px;width:calc(var(--labw) + 2*var(--lat) + 20px);margin:0 auto;user-select:none;-webkit-user-select:none}
+#colIzq,#colDer{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
+#colIzq{grid-column:1;grid-row:1}
+#lab{grid-column:2;grid-row:1}
+#colDer{grid-column:3;grid-row:1}
+#colArbol{grid-column:1/4;grid-row:2}
+#colBalance,#colEstado{flex:1;min-height:0}
 #escenario,#escenario *{cursor:default!important}
 button{font-family:inherit}
 button:disabled{opacity:.45;cursor:not-allowed}
 
 /* ---------- Encabezado ---------- */
-header{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:16px;margin:0 0 10px}
-h1{font-size:clamp(20px,2.7cqw,32px);margin:0 0 3px;white-space:nowrap}
-#subtitle{color:#b8c4c9;font-size:13px;white-space:nowrap}
-.hdr-btns{display:flex;flex-direction:column;gap:8px}
-.hdr-btns .action{width:clamp(170px,22cqw,230px);height:36px;padding:0 8px;font-size:13px}
-.legend{justify-self:end;max-width:520px;font-size:11px;line-height:1.4;color:#d6e0e2;background:#111b22b8;border:1px solid #3a4c58;border-radius:9px;padding:8px 12px}
+#cabIzq{flex:none}
+h1{font-size:clamp(17px,1.55vw,26px);margin:0 0 2px;line-height:1.15}
+#subtitle{color:#b8c4c9;font-size:12.5px;margin-bottom:8px}
+.hdr-btns{display:flex;flex-direction:column;gap:6px}
+.hdr-btns .action{width:100%;height:32px;padding:0 8px;font-size:12.5px}
+.legend{flex:none;font-size:11px;line-height:1.4;color:#d6e0e2;background:#111b22b8;border:1px solid #3a4c58;border-radius:9px;padding:8px 11px}
 .legend-titulo{font-weight:bold;color:#f0dfbf;margin-bottom:3px;letter-spacing:.04em}
 .action{border:1px solid #6c8792;border-radius:7px;background:#223540;color:#edf6f5;font-weight:bold;cursor:pointer}
 .action.primary{background:#9a7438;border-color:#e7c77d;color:#fff8e8}
@@ -31,7 +40,7 @@ h1{font-size:clamp(20px,2.7cqw,32px);margin:0 0 3px;white-space:nowrap}
 .action.apuntado{background-image:linear-gradient(90deg,#4ef5db66 var(--p,0%),transparent var(--p,0%))}
 
 /* ---------- Laboratorio ---------- */
-#lab{position:relative;width:100%;aspect-ratio:2/1;overflow:hidden;border:2px solid #40515c;border-radius:14px;background:linear-gradient(#1a2832 0%,#202d34 65%,#2a3335 65%,#1b2326 100%);box-shadow:0 16px 45px #0009;isolation:isolate}
+#lab{position:relative;container-type:inline-size;width:100%;aspect-ratio:2/1;overflow:hidden;border:2px solid #40515c;border-radius:14px;background:linear-gradient(#1a2832 0%,#202d34 65%,#2a3335 65%,#1b2326 100%);box-shadow:0 16px 45px #0009;isolation:isolate}
 #mesa{position:absolute;left:0;right:0;bottom:0;height:35%;background:linear-gradient(180deg,#8b7761 0%,#665442 7%,#4a3e33 100%);border-top:7px solid #b39a7a;box-shadow:inset 0 12px 18px #fff1}
 #mesa:after{content:"";position:absolute;inset:14% 0 0;background:repeating-linear-gradient(0deg,transparent 0 40px,#241d1830 41px 43px)}
 .capa{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -62,15 +71,14 @@ h1{font-size:clamp(20px,2.7cqw,32px);margin:0 0 3px;white-space:nowrap}
 #logro span{display:block;margin-top:.4cqw;font-size:1.3cqw;color:#f5e3ad}
 #nota{position:absolute;z-index:8;left:1.2%;bottom:1.2%;font-size:.95cqw;color:#c9bda6;opacity:.85;pointer-events:none}
 
-/* ---------- Panel inferior ---------- */
-#panel{display:grid;grid-template-columns:1.6fr .95fr .95fr;gap:10px;margin-top:10px;height:232px}
+/* ---------- Paneles ---------- */
 .col{background:#14212a;border:1px solid #3b4b55;border-radius:10px;padding:9px 11px;min-width:0;overflow:hidden;position:relative}
 .tit{font-size:11px;letter-spacing:.09em;color:#f0dfbf;margin-bottom:6px}
 .tit em{font-style:normal;letter-spacing:0;color:#8ea2ab;font-size:10px}
 #arbolBox{position:absolute;left:8px;right:8px;top:30px;bottom:8px;overflow:hidden;border-radius:7px;background:#0f171c;border:1px solid #2c3a43}
 #arbol{width:100%;height:100%;display:block}
 #arbolVacio{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;font-size:12px;line-height:1.45;color:#8fa2aa}
-#estadoTexto{font-size:12px;line-height:1.4;color:#d7e3e2;height:136px;overflow:hidden}
+#estadoTexto{font-size:12px;line-height:1.4;color:#d7e3e2;height:calc(100% - 92px);overflow:hidden}
 #bDeclarar{position:absolute;left:11px;right:11px;bottom:10px;height:42px;font-size:13px}
 #balance{font-size:12px;line-height:1.4;color:#d7e3e2}
 #balance table{width:100%;border-collapse:collapse}
@@ -87,30 +95,27 @@ h1{font-size:clamp(20px,2.7cqw,32px);margin:0 0 3px;white-space:nowrap}
 #cameraToggle{width:100%;font-size:11px;padding:4px;background:#253741;color:#fff;border:1px solid #61717a;border-radius:4px;cursor:pointer}
 #handCursor{position:absolute;width:20px;height:20px;border:3px solid #4ef5db;border-radius:50%;transform:translate(-50%,-50%);display:none;pointer-events:none;z-index:50;box-shadow:0 0 12px #4ef5db}
 #handCursor.agarrando{border-color:#5dff6a;box-shadow:0 0 12px #5dff6a}
-@media(max-width:800px){.legend{max-width:100%}#cameraBox{width:105px}}
+@media(max-width:800px){#cameraBox{width:105px}}
 </style>
 </head>
 <body>
 <div id="pagina">
 <div id="escenario">
 
-<header>
-  <div class="titulos">
+<div id="colIzq">
+  <div id="cabIzq">
     <h1>Laboratorio Imposible</h1>
     <div id="subtitle">Experimento de Marie Curie</div>
+    <div class="hdr-btns">
+      <button id="volver" class="action">← Volver al menú</button>
+      <button id="reiniciar" class="action">Reiniciar Experimento</button>
+    </div>
   </div>
-  <div class="hdr-btns">
-    <button id="volver" class="action">← Volver al menú</button>
-    <button id="reiniciar" class="action">Reiniciar Experimento</button>
-  </div>
-  <div class="legend">
-    <div class="legend-titulo">Gestos de este experimento</div>
-    ☝️ <b>Índice</b>: seleccionar tubos, muestras, reactivo, equipos y botones<br>
-    🤏 <b>Pinza</b>: mantenerla para llevar lo elegido (o mover el árbol); abrirla para soltar<br>
-    ↔ <b>Agitar</b>: con el tubo en la pinza, moverlo de lado a lado unos 2 segundos<br>
-    ✊ <b>Puño</b>: con el fraccionador o el detector seleccionado, activarlo
-  </div>
-</header>
+  <section class="col" id="colBalance">
+    <div class="tit">BALANCE DE ACTIVIDAD</div>
+    <div id="balance"></div>
+  </section>
+</div>
 
 <div id="lab">
   <div id="mesa"></div>
@@ -127,22 +132,26 @@ h1{font-size:clamp(20px,2.7cqw,32px);margin:0 0 3px;white-space:nowrap}
   <div id="nota">Modelo didáctico: cantidades no a escala y sin pérdidas de muestra.</div>
 </div>
 
-<section id="panel">
-  <div class="col" id="colArbol">
-    <div class="tit">ÁRBOL DE FRACCIONAMIENTO <em>· pellizcá y arrastrá sobre el árbol para desplazarlo</em></div>
-    <div id="arbolBox">
-      <svg id="arbol"></svg>
-      <div id="arbolVacio">Todavía no hay muestras. Llevá pechblenda a un tubo del soporte para empezar el árbol.</div>
-    </div>
+<div id="colDer">
+  <div class="legend">
+    <div class="legend-titulo">Gestos de este experimento</div>
+    ☝️ <b>Índice</b>: seleccionar tubos, muestras, reactivo, equipos y botones<br>
+    🤏 <b>Pinza</b>: mantenerla para llevar lo elegido (o mover el árbol); abrirla para soltar<br>
+    ↔ <b>Agitar</b>: con el tubo en la pinza, moverlo de lado a lado unos 2 segundos<br>
+    ✊ <b>Puño</b>: con el fraccionador o el detector seleccionado, activarlo
   </div>
-  <div class="col">
-    <div class="tit">BALANCE DE ACTIVIDAD</div>
-    <div id="balance"></div>
-  </div>
-  <div class="col">
+  <section class="col" id="colEstado">
     <div class="tit">ESTADO</div>
     <div id="estadoTexto"></div>
     <button id="bDeclarar" class="action primary">Declarar hallazgo</button>
+  </section>
+</div>
+
+<section class="col" id="colArbol">
+  <div class="tit">ÁRBOL DE FRACCIONAMIENTO <em>· pellizcá y arrastrá sobre el árbol para desplazarlo</em></div>
+  <div id="arbolBox">
+    <svg id="arbol"></svg>
+    <div id="arbolVacio">Todavía no hay muestras. Llevá pechblenda a un tubo del soporte para empezar el árbol.</div>
   </div>
 </section>
 
@@ -477,7 +486,7 @@ function nuevoTubo(comp,ctl,nombre){
 /* =====================================================================
    6) ÁRBOL DE FRACCIONAMIENTO
    ===================================================================== */
-const NW=142,NH=48,GX=28,GY=8;
+const NW=190,NH=38,GX=34,GY=6;
 const arbolV={ox:8,oy:8,s:1,cw:0,ch:0,pan:null};
 const COL_EST={conservada:"#7fdc8a",fraccionada:"#9aa8b0",descartada:"#ff7a6b"};
 
@@ -510,7 +519,7 @@ function renderArbol(){
   let w=0,h=0;state.nodos.forEach(n=>{w=Math.max(w,n.x+NW);h=Math.max(h,n.y+NH)});
   const box=$("arbolBox"),vw=box.clientWidth,vh=box.clientHeight;
   arbolV.cw=w;arbolV.ch=h;
-  arbolV.s=Math.max(.75,Math.min(1,(vw-16)/w,(vh-16)/h));
+  arbolV.s=Math.max(.8,Math.min(1,(vw-16)/w,(vh-16)/h));
   limitarOfs();
   const selT=state.sel&&state.sel.startsWith("tubo:")?tuboPorId(state.sel.slice(5)):null;
   let e="",nd="";
@@ -522,16 +531,15 @@ function renderArbol(){
     }
     const col=colorDe(n.comp),esSel=selT&&selT.nodo===n;
     const l1=n.padre?`Etapa ${n.etapa} · Tubo ${n.n}`:`Intento ${n.intento} · Tubo ${n.n}`;
-    const l2=n.per100===null?"sin medir":`${fmt(n.per100,1)} ×U/100 g`;
-    const l3=n.elem?`✔ ${n.elem}`:n.estado;
+    const per=n.per100===null?"sin medir":`${fmt(n.per100,1)} ×U/100 g`;
+    const fin=n.elem?`✔ ${n.elem}`:n.estado;
     const c3=n.elem?"#ffe08a":COL_EST[n.estado];
     nd+=`<g transform="translate(${n.x} ${n.y})">`+
       `<rect width="${NW}" height="${NH}" rx="7" fill="#131d24" stroke="${esSel?"#ffd84d":(n.elem?"#ffe08a":"#4b5d68")}" stroke-width="${esSel?3:1.6}"/>`+
-      `<path d="M9 8 V34 Q9 41 16 41 H24 Q31 41 31 34 V8" fill="none" stroke="#cfe3ea" stroke-width="1.6"/>`+
-      `<path d="M10.5 20 V34 Q10.5 39.5 16 39.5 H24 Q29.5 39.5 29.5 34 V20 Z" fill="${col}"/>`+
-      `<text x="38" y="15" font-family="Arial" font-size="11" font-weight="700" fill="#eef4f5">${l1}</text>`+
-      `<text x="38" y="29" font-family="Arial" font-size="10.5" fill="${n.per100===null?"#8fa2aa":"#bfe8cb"}">${l2}</text>`+
-      `<text x="38" y="42" font-family="Arial" font-size="10.5" font-weight="${n.elem?700:400}" fill="${c3}">${l3}</text></g>`;
+      `<path d="M9 6 V27 Q9 33 15 33 H23 Q29 33 29 27 V6" fill="none" stroke="#cfe3ea" stroke-width="1.6"/>`+
+      `<path d="M10.5 16 V27 Q10.5 31.5 15 31.5 H23 Q27.5 31.5 27.5 27 V16 Z" fill="${col}"/>`+
+      `<text x="36" y="15" font-family="Arial" font-size="11" font-weight="700" fill="#eef4f5">${l1}</text>`+
+      `<text x="36" y="30" font-family="Arial" font-size="10.5"><tspan fill="${n.per100===null?"#8fa2aa":"#bfe8cb"}">${per}</tspan><tspan fill="#6f8794"> · </tspan><tspan fill="${c3}" font-weight="${n.elem?700:400}">${fin}</tspan></text></g>`;
   });
   svg.innerHTML=`<g id="arbolG" transform="translate(${arbolV.ox} ${arbolV.oy}) scale(${arbolV.s})">${e}${nd}</g>`;
 }
@@ -709,9 +717,9 @@ function actualizarSnap(){
   z.style.cssText=`${pct(s.x-(k==="tray"?58:34),s.y-(k==="tray"?36:TH/2+4),k==="tray"?116:68,k==="tray"?80:TH+8)}`;
   z.classList.add("visible");
 }
-function moverAgarre(lm){
+function moverAgarre(pa){
   const h=state.held;
-  const pa=centroPalma(lm),G=1.2,hLab=lab.clientHeight*W/lab.clientWidth;
+  const G=1.2,hLab=lab.clientHeight*W/lab.clientWidth;
   h.x=Math.max(0,Math.min(W,h.x0-(pa.x-h.p0.x)*W*G));
   h.y=Math.max(0,Math.min(hLab,h.y0+(pa.y-h.p0.y)*esc.clientHeight*W/esc.clientWidth*G));
   moverMano();
@@ -723,16 +731,16 @@ function moverAgarre(lm){
     if(agita){
       const sh=h.sh,dx=pa.x-sh.last;sh.last=pa.x;
       const ahora=performance.now();
-      if(Math.abs(dx)>.004){
+      if(Math.abs(dx)>.003){
         const d=dx>0?1:-1;
         if(sh.dir===0){sh.dir=d;sh.seg=Math.abs(dx)}
         else if(d===sh.dir)sh.seg+=Math.abs(dx);
         else{
-          if(sh.seg>=.03){sh.rev++;sh.t=ahora}
+          if(sh.seg>=.022){sh.rev++;sh.t=ahora}
           sh.dir=d;sh.seg=Math.abs(dx);
         }
       }
-      if(sh.rev>0&&ahora-sh.t>1000)sh.rev=0;
+      if(sh.rev>0&&ahora-sh.t>1600){sh.rev--;sh.t=ahora}   // el progreso baja de a poco, no se pierde de golpe
       barra.style.width=Math.min(100,sh.rev/REV_AGITAR*100)+"%";
       if(sh.rev>=REV_AGITAR){
         t.mezclado=true;
@@ -757,7 +765,7 @@ function moverAgarre(lm){
   }
   actualizarSnap();
 }
-const REV_AGITAR=8,FR_REACTIVO=20;
+const REV_AGITAR=7,FR_REACTIVO=20;
 
 function agregarReactivo(t){
   if(t.ctl){msg("Las muestras control solo se miden en el detector: no se tratan con reactivo.");return}
@@ -932,6 +940,25 @@ function centroPalma(lm){
   return{x:sx/5,y:sy/5};
 }
 
+/* ---- Estabilización del movimiento (filtro One Euro) ----
+   Suaviza mucho cuando la mano está quieta (sin temblor) y casi nada cuando se mueve
+   rápido (sin retraso). Se usa para el cursor y para la palma al llevar objetos. */
+function crearFiltro(minCut,beta){return{minCut,beta,x:null,dx:0,t:0}}
+function filtrar(f,v,t){
+  if(f.x===null){f.x=v;f.dx=0;f.t=t;return v}
+  const dt=Math.max(.001,(t-f.t)/1000);f.t=t;
+  const alfa=fc=>1/(1+(1/(2*Math.PI*fc))/dt);
+  f.dx+=alfa(1)*((v-f.x)/dt-f.dx);
+  f.x+=alfa(f.minCut+f.beta*Math.abs(f.dx))*(v-f.x);
+  return f.x;
+}
+const fPalmaX=crearFiltro(1.4,9),fPalmaY=crearFiltro(1.4,9),fCurX=crearFiltro(2.2,12),fCurY=crearFiltro(2.2,12);
+function resetFiltros(){[fPalmaX,fPalmaY,fCurX,fCurY].forEach(f=>{f.x=null})}
+const GRACIA_MANO_MS=500;     // si la cámara pierde la mano un instante, no se suelta lo que se lleva
+const DEB_SUELTA=5,DEB_AGITAR=10;   // fotogramas seguidos con la pinza abierta para soltar (más en el agitado)
+let ultimaVista=0,sueltaF=0;
+const agitando=()=>{const h=state.held;return !!(h&&h.tipo==="tubo"&&h.t.reactivo&&!h.t.mezclado)};
+
 function elementoBajoCursor(x,y){
   const r=esc.getBoundingClientRect();
   const el=document.elementFromPoint(r.left+esc.clientLeft+x,r.top+esc.clientTop+y);
@@ -978,8 +1005,8 @@ function iniciarPan(p0){
   arbolV.pan={p0,ox0:arbolV.ox,oy0:arbolV.oy};
   msg("Moviendo el árbol: desplazá la mano sin soltar la pinza y abrila para dejarlo.");
 }
-function moverPan(lm){
-  const pa=centroPalma(lm),p=arbolV.pan,G=1.2;
+function moverPan(pa){
+  const p=arbolV.pan,G=1.2;
   arbolV.ox=p.ox0-(pa.x-p.p0.x)*esc.clientWidth*G;
   arbolV.oy=p.oy0+(pa.y-p.p0.y)*esc.clientHeight*G;
   aplicarPanArbol();
@@ -991,18 +1018,23 @@ function handResults(results){
   if(results.image)ctx.drawImage(results.image,0,0,camCanvas.width,camCanvas.height);
   ctx.restore();
   if(!results.multiHandLandmarks||!results.multiHandLandmarks.length){
+    /* la cámara puede perder la mano un instante (movimiento rápido): se espera antes de soltar */
+    if((state.held||arbolV.pan)&&performance.now()-ultimaVista<GRACIA_MANO_MS)return;
     cursor.style.display="none";cursor.classList.remove("agarrando");
-    pinchActivo=false;historialDistancias.length=0;
+    pinchActivo=false;historialDistancias.length=0;sueltaF=0;
     if(state.held)soltar();
-    arbolV.pan=null;
+    arbolV.pan=null;resetFiltros();
     reiniciarHover();procesarGestoPuno(false);
     return;
   }
+  const tAhora=performance.now();ultimaVista=tAhora;
   const lm=results.multiHandLandmarks[0];
   if(window.drawConnectors&&window.HAND_CONNECTIONS)drawConnectors(ctx,lm,HAND_CONNECTIONS,{color:"#7de6d0",lineWidth:2});
   if(window.drawLandmarks)drawLandmarks(ctx,lm,{color:"#ffe08a",lineWidth:1,radius:2});
 
-  const x=(1-lm[8].x)*esc.clientWidth,y=lm[8].y*esc.clientHeight;
+  const cx8=filtrar(fCurX,lm[8].x,tAhora),cy8=filtrar(fCurY,lm[8].y,tAhora);
+  const pr=centroPalma(lm),pa={x:filtrar(fPalmaX,pr.x,tAhora),y:filtrar(fPalmaY,pr.y,tAhora)};
+  const x=(1-cx8)*esc.clientWidth,y=cy8*esc.clientHeight;
   cursor.style.display="block";cursor.style.left=x+"px";cursor.style.top=y+"px";
 
   const d=distanciaSuavizada(distancia3D(lm[4],lm[8]));
@@ -1016,12 +1048,15 @@ function handResults(results){
   const puno=puñoCerrado(lm)&&!pulgarVertical(lm);
 
   if(arbolV.pan){
-    if(pinchActivo)moverPan(lm);else arbolV.pan=null;
+    if(pinchActivo){sueltaF=0;moverPan(pa)}
+    else if(++sueltaF>=DEB_SUELTA){arbolV.pan=null;sueltaF=0}
   }else if(state.held){
-    if(pinchActivo)moverAgarre(lm);else soltar();
+    if(pinchActivo){sueltaF=0;moverAgarre(pa)}
+    else if(++sueltaF>=(agitando()?DEB_AGITAR:DEB_SUELTA)){sueltaF=0;soltar()}   // la posición queda congelada mientras se confirma
   }else if(pinchInicio&&!puno){
-    if(sobreArbol(x,y)&&state.nodos.length)iniciarPan(centroPalma(lm));
-    else iniciarAgarre(centroPalma(lm));
+    sueltaF=0;
+    if(sobreArbol(x,y)&&state.nodos.length)iniciarPan(pa);
+    else iniciarAgarre(pa);
   }
 
   if(!state.held&&!arbolV.pan&&senalando&&!pinchActivo)procesarSenalar(elementoBajoCursor(x,y));
