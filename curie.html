@@ -71,7 +71,7 @@ h1{font-size:clamp(17px,1.55vw,26px);margin:0 0 2px;line-height:1.15}
 #logro span{display:block;margin-top:.4cqw;font-size:1.3cqw;color:#f5e3ad}
 #nota{position:absolute;z-index:8;left:1.2%;bottom:1.2%;font-size:.95cqw;color:#c9bda6;opacity:.85;pointer-events:none}
 
-/* ---------- Paneles ---------- */
+/* ---------- Panel inferior ---------- */
 .col{background:#14212a;border:1px solid #3b4b55;border-radius:10px;padding:9px 11px;min-width:0;overflow:hidden;position:relative}
 .tit{font-size:11px;letter-spacing:.09em;color:#f0dfbf;margin-bottom:6px}
 .tit em{font-style:normal;letter-spacing:0;color:#8ea2ab;font-size:10px}
@@ -628,8 +628,10 @@ function declarar(){
   if(state.decl[c]!==null){msg(`Ya declaraste ${COMPS[c].n.toLowerCase()}. Buscá otra sustancia en los demás tubos.`);return}
   state.decl[c]=ACT_COMP[c];
   if(t.nodo){t.nodo.elem=COMPS[c].n;}
-  if(c==="U")msg("El uranio ya era conocido: lo registrás en el balance como la primera de las tres sustancias. Seguí buscando lo que falta para explicar toda la actividad.");
-  else{
+  if(c==="U"){
+    mostrarLogro("¡Felicitaciones!<br>¡Purificaste el uranio!","Ya era conocido: quedó registrado en el balance.");
+    msg("¡Felicitaciones! ¡Purificaste el uranio! Ya era una sustancia conocida: la registrás en el balance como la primera de las tres. Seguí buscando lo que falta para explicar toda la actividad.");
+  }else{
     const art=c==="Po"?"el polonio":"el radio";
     mostrarLogro(`¡Felicitaciones!<br>¡Descubriste ${art}!`,"Mirá cómo se agregó al cartel de la pared.");
     msg(`¡Felicitaciones! ¡Descubriste ${art}! Quedó anotado en el cartel y en el balance.`);
